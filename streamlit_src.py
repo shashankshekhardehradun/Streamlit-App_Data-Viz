@@ -28,6 +28,76 @@ Please note that the rendering of the visualizations might result in slight offs
 '''
 st.markdown(markdown_text0)
 
+markdown_text_i = '''## Understanding the Meanings of the Dataset Features'''
+st.markdown(markdown_text_i)
+
+data = {
+    "Features": [
+        "Timestamp",
+        "Age",
+        "Gender",
+        "Country",
+        "state",
+        "self_employed",
+        "family_history",
+        "treatment",
+        "work_interfere",
+        "no_employees",
+        "remote_work",
+        "tech_company",
+        "benefits",
+        "care_options",
+        "wellness_program",
+        "seek_help",
+        "anonymity",
+        "leave",
+        "mental_health_consequence",
+        "phys_health_consequence",
+        "coworkers",
+        "supervisor",
+        "mental_health_interview",
+        "phys_health_interview",
+        "mental_vs_physical",
+        "obs_consequence",
+        "comments",
+    ],
+    "Description": [
+        "Time the survey was submitted",
+        "Respondent age",
+        "Respondent gender",
+        "Respondent country",
+        "If you live in the United States, which state or territory do you live in?",
+        "Are you self-employed?",
+        "Do you have a family history of mental illness?",
+        "Have you sought treatment for a mental health condition?",
+        "If you have a mental health condition, do you feel that it interferes with your work?",
+        "How many employees does your company or organization have?",
+        "Do you work remotely (outside of an office) at least 50% of the time?",
+        "Is your employer primarily a tech company/organization?",
+        "Does your employer provide mental health benefits?",
+        "Do you know the options for mental health care your employer provides?",
+        "Has your employer ever discussed mental health as part of an employee wellness program?",
+        "Does your employer provide resources to learn more about mental health issues and how to seek help?",
+        "Is your anonymity protected if you choose to take advantage of mental health or substance abuse treatment",
+        "How easy is it for you to take medical leave for a mental health condition?",
+        "Do you think that discussing a mental health issue with your employer would have negative consequences?",
+        "Do you think that discussing a physical health issue with your employer would have negative consequences?",
+        "Would you be willing to discuss a mental health issue with your coworkers?",
+        "Would you be willing to discuss a mental health issue with your direct supervisor(s)?",
+        "Would you bring up a mental health issue with a potential employer in an interview?",
+        "Would you bring up a physical health issue with a potential employer in an interview?",
+        "Do you feel that your employer takes mental health as seriously as physical health?",
+        "Have you heard of or observed negative consequences for coworkers with mental health conditions in your organization",
+        "Any additional notes or comments",
+    ],
+}
+
+df = pd.DataFrame(data)
+#styled_df = df.style.applymap(lambda _: "background-color: LightBlue;", subset=pd.IndexSlice[:, :])
+# Displaying the styled DataFrame with horizontal scrolling
+st.dataframe(df, hide_index = True, use_container_width = True)
+
+
 df = pd.read_csv('survey.csv')
 
 df = df.drop(columns=['state', 'comments', 'Timestamp'])
@@ -60,13 +130,14 @@ for i in df.Age:
         age.append(i)
 df['Age'] = age
 
-other  = ['A little about you', 'p', 'Nah', 'Enby', 'Trans-female','something kinda male?','queer/she/they','non-binary','All','fluid', 'Genderqueer','Androgyne', 'Agender','Guy (-ish) ^_^', 'male leaning androgynous','Trans woman','Neuter', 'Female (trans)','queer','ostensibly male, unsure what that really means','trans']
+selfdescribe  = ['A little about you', 'p', 'Nah', 'Enby', 'Trans-female','something kinda male?','queer/she/they','non-binary','All','fluid', 'Genderqueer','Androgyne', 'Agender','Guy (-ish) ^_^', 'male leaning androgynous','Trans woman','Neuter', 'Female (trans)','queer','ostensibly male, unsure what that really means','trans']
 male   = ['male', 'Male','M', 'm', 'Male-ish', 'maile','Cis Male','Mal', 'Male (CIS)','Make','Male ', 'Man', 'msle','cis male', 'Cis Man','Malr','Mail']
 female = ['Female', 'female','Cis Female', 'F','f','Femake', 'woman','Female ','cis-female/femme','Female (cis)','femail','Woman','female']
 
-df['Gender'].replace(to_replace = other, value = 'other', inplace=True)
+df['Gender'].replace(to_replace = selfdescribe, value = 'Self-Describe', inplace=True)
 df['Gender'].replace(to_replace = male, value = 'M', inplace=True)
 df['Gender'].replace(to_replace = female, value = 'F', inplace=True)
+
 
 markdown_text = '''
 ## Overall Distribution of the Data
@@ -221,7 +292,7 @@ fig1.update_traces(
 
 
 fig1.update_layout(height=1200, width=900,
-                  title = dict(text = 'Visualization of Non-Categorical Variables<br>1. Observation from Countries(Log-Scaled)<br>2. Ages Count',
+                  title = dict(text = 'Visualization of Non-Categorical Variables<br>1. Observation from Countries(Log-Scaled)<br>2. Age Distribution',
                                x = 0.5,
                                font = dict(size = 16, color ='#27302a',
                                family = 'monospace')),
@@ -243,7 +314,7 @@ fig5.update_layout(height=600, width=800,)
 st.plotly_chart(fig5)
 
 markdown_text2 = '''
-## Gender vs Country Distribution of the Data Points
+## Country-Gender Distribution of the Data Points
 
 '''
 st.markdown(markdown_text2)
@@ -323,12 +394,13 @@ st.plotly_chart(fig3)
 
 markdown_text4 = '''
 ## Genderwise Distribution of Features
+Please select an option from the dropdown menu
 '''
 
 st.markdown(markdown_text4)
 male   = df[df.Gender == 'M'].drop(['Gender', 'Age', 'Country'], axis=1)
 female = df[df.Gender == 'F'].drop(['Gender', 'Age', 'Country'], axis=1)
-other  = df[df.Gender == 'other'].drop(['Gender', 'Age', 'Country'], axis=1)
+selfdescribe  = df[df.Gender == 'Self-Describe'].drop(['Gender', 'Age', 'Country'], axis=1)
 
 buttons = []
 i = 0
@@ -346,7 +418,7 @@ for col in male.columns:
 fig4 = make_subplots(rows=1, cols=3,  # Adjusted for three columns
                      specs=[[{'type': 'domain'}, {'type': 'domain'}, {'type': 'domain'}]])
 
-# Add traces for Male, Female, and Other
+# Add traces for Male, Female, and Self-Describe
 for col in male.columns:
     fig4.add_trace(go.Pie(
         values=male[col].value_counts(),
@@ -367,11 +439,11 @@ for col in female.columns:
         hole=0.5,
         hoverinfo='label+percent', ), 1, 2)
 
-for col in other.columns:
+for col in selfdescribe.columns:
     fig4.add_trace(go.Pie(
-        values=other[col].value_counts(),
-        labels=other[col].value_counts().index,
-        title=dict(text='Other distribution<br>of {}'.format(col),
+        values=selfdescribe[col].value_counts(),
+        labels=selfdescribe[col].value_counts().index,
+        title=dict(text='Self-Describe distribution<br>of {}'.format(col),
                    font=dict(size=18, family='monospace'),
                    ),
         hole=0.5,
@@ -506,13 +578,13 @@ fig6.update_traces(row=2, col=2, hoverinfo='label+percent',
                               line=dict(color='#000000', width=1)))
               
 
-fig6.update_layout(margin=dict(t=50, b=50, l=50, r=50),
+fig6.update_layout(margin=dict(t=50, b=50, l=100, r=0),
                   height = 800,
                   font_family   = 'monospace',
                   updatemenus = [dict(
                         type = 'dropdown',
-                        x = 0.65,
-                        y = 0.50,
+                        x = 0.60,
+                        y = 0.55,
                         showactive = True,
                         active = 0,
                         buttons = buttons)],
@@ -520,7 +592,7 @@ fig6.update_layout(margin=dict(t=50, b=50, l=50, r=50),
                              dict(text = "<b>Choose Column<b> : ",
                                   font = dict(size = 14),
                              showarrow=False,
-                             x = 0.50, y = 0.55, yref = "paper", align = "left")])
+                             x = 0.50, y = 0.60, yref = "paper", align = "left")])
 
 for i in range(0,88):
     fig6.data[i].visible = False
@@ -592,7 +664,7 @@ fig7.update_traces(row=1, col=2, hoverinfo='label+percent',
                               line=dict(color='#000000', width=1)))
               
 
-fig7.update_layout(margin=dict(t=50, b=50, l=50, r=50),
+fig7.update_layout(margin=dict(t=50, b=50, l=60, r=50),
                   font_family   = 'monospace',
                   updatemenus = [dict(
                         type = 'dropdown',

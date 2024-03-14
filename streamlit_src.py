@@ -93,7 +93,7 @@ data = {
 }
 
 df = pd.DataFrame(data)
-#styled_df = df.style.applymap(lambda _: "background-color: LightBlue;", subset=pd.IndexSlice[:, :])
+# styled_df = df.style.applymap(lambda _: "background-color: #FFD580;", subset=pd.IndexSlice[:, :-1])
 # Displaying the styled DataFrame with horizontal scrolling
 st.dataframe(df, hide_index = True, use_container_width = True)
 
@@ -303,11 +303,11 @@ fig1.update_layout(height=1200, width=900,
 st.plotly_chart(fig1)
 
 country_counts = df['Country'].value_counts().reset_index()
-country_counts.columns = ['Country', 'Number of Survey Respondents']
+country_counts.columns = ['Country', 'Tech Employees']
 
 country_counts = pd.DataFrame(country_counts)
-country_counts['Number of Survey Respondents'] = country_counts['Number of Survey Respondents']
-fig5 = px.choropleth(country_counts, locations='Country', locationmode='country names', color='Number of Survey Respondents',
+country_counts['Tech Employees'] = country_counts['Tech Employees']
+fig5 = px.choropleth(country_counts, locations='Country', locationmode='country names', color='Tech Employees',
                     hover_name='Country', color_continuous_scale= 'YlOrRd',) 
 fig5.update_layout(height=600, width=800,)
 
